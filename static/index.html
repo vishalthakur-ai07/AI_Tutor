@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MathMentor – Class 8 Maths Tutor</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f6f7fb;color:#1d2433;font:16px/1.5 system-ui,sans-serif}
+  [hidden]{display:none!important}
+  h1{font-size:22px;margin:0}
+  .sub{color:#5c667a;font-size:14px;margin:2px 0 0}
+  .onb{max-width:460px;margin:0 auto;padding:20px 16px}
+  .onb form{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+  label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:#5c667a}
+  select,input,textarea{font:inherit;padding:9px;border:1px solid #dfe3ec;border-radius:8px;background:#fff;color:#1d2433}
+  button{font:inherit;cursor:pointer;border:1px solid #dfe3ec;background:#fff;border-radius:999px;padding:6px 14px;font-size:14px}
+  .go,#send{background:#3b5bdb;color:#fff;border-color:#3b5bdb;border-radius:10px}
+  .go{padding:12px;font-size:16px}
+  button:disabled{opacity:.5;cursor:default}
+  .wrap{max-width:760px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:10px;height:100vh}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;color:#5c667a}
+  #panel{background:#fff;border:1px solid #dfe3ec;border-radius:10px;padding:8px 12px;font-size:13px}
+  #chat{flex:1;overflow-y:auto;background:#fff;border:1px solid #dfe3ec;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .m{max-width:85%;padding:10px 12px;border-radius:12px;white-space:pre-wrap}
+  .t{background:#f1f3f9;align-self:flex-start}
+  .u{background:#e7ecff;align-self:flex-end}
+  .who{font-size:12px;color:#5c667a}
+  #chips{display:flex;gap:6px;flex-wrap:wrap}
+  #f{display:flex;gap:8px}
+  #box{flex:1;resize:none}
+  #send{padding:0 20px}
+</style>
+</head>
+<body>
+
+<!-- Personalization form (Step 5) -->
+<div class="onb" id="onb">
+  <h1>Welcome to MathMentor</h1>
+  <p class="sub">Your Class 8 maths tutor (CBSE, NCERT Ganita Prakash). Tell me about you first.</p>
+  <form id="onbForm">
+    <label>Your name<input id="oName" required maxlength="30"></label>
+    <label>How do you feel about maths?
+      <select id="oFeel"><option>I find it hard</option><option selected>I'm okay at it</option><option>I'm good at it</option></select></label>
+    <label>Chapter to study<select id="oChapter"></select></label>
+    <label>Difficulty
+      <select id="oDiff"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label>
+    <button class="go" type="submit">Start learning</button>
+  </form>
+</div>
+
+<!-- Main interface (Step 3) -->
+<div class="wrap" id="app" hidden>
+  <div><h1>MathMentor</h1><p class="sub">Class 8 Maths Tutor</p></div>
+  <div class="row">
+    <label style="flex-direction:row;align-items:center;gap:6px">Mode
+      <select id="mode">
+        <option value="learn">Learn</option>
+        <option value="doubt">Ask a Doubt</option>
+        <option value="practice">Practice</option>
+        <option value="quiz">Quiz</option>
+        <option value="challenge">Challenge</option>
+      </select></label>
+    <label style="flex-direction:row;align-items:center;gap:6px">Chapter <select id="chapter"></select></label>
+    <span id="lvl"></span>
+    <button type="button" id="edit" style="margin-left:auto">Change details</button>
+  </div>
+  <div id="panel">
+    <b>Your progress:</b> <span id="total">no answers yet</span><br>
+    <b>Strong:</b> <span id="strong">-</span><br>
+    <b>Needs practice:</b> <span id="need">-</span>
+  </div>
+  <div id="chat" aria-live="polite"></div>
+  <div id="chips"></div>
+  <form id="f">
+    <textarea id="box" rows="2" placeholder="Type here…"></textarea>
+    <button id="send" type="submit">Send</button>
+  </form>
+  <button type="button" id="end">End session and see my summary</button>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const LEVELS = ["Beginner", "Intermediate", "Advanced"];
+
+let CH = {};                                    // unit -> chapters (from the server)
+let profile = {name: "", feeling: "", difficulty: "Beginner"};
+let mode = "learn", chapter = "", level = "Beginner";
+let busy = false, hist = [];                    // chat history for Learn / Doubt
+let queue = [], current = null, attempt = 0;    // question flow
+let asked = [], qNum = 0, qTotal = 0, batchRight = 0, batchTotal = 0, quizRight = 0;
+let stats = {}, weak = {};                      // Step 8: learner profile for this session
+
+async function api(path, body) {
+  const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || "Request failed");
+  return d;
+}
+
+function add(role, text) {
+  const d = document.createElement("div");
+  d.className = "m " + (role === "user" ? "u" : "t");
+  const w = document.createElement("div"); w.className = "who"; w.textContent = role === "user" ? "You" : "MathMentor";
+  const b = document.createElement("div"); b.textContent = text;
+  d.append(w, b); $("chat").append(d); $("chat").scrollTop = $("chat").scrollHeight;
+  return b;
+}
+function chips(list) {
+  $("chips").innerHTML = "";
+  list.forEach(([label, fn]) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.onclick = fn; $("chips").append(b);
+  });
+}
+function setBusy(v) { busy = v; $("send").disabled = v; }
+
+function fillChapters(sel) {
+  for (const [unit, list] of Object.entries(CH)) {
+    const g = document.createElement("optgroup"); g.label = unit;
+    list.forEach(c => { const o = document.createElement("option"); o.value = o.textContent = c; g.append(o); });
+    sel.append(g);
+  }
+}
+
+/* ---------- start / reset a mode ---------- */
+function setup() {
+  hist = []; queue = []; current = null; attempt = 0; asked = [];
+  level = profile.difficulty; qNum = qTotal = batchRight = batchTotal = quizRight = 0;
+  $("chat").innerHTML = ""; $("chips").innerHTML = "";
+  $("lvl").textContent = "· " + profile.difficulty;
+  const hi = "Hi " + profile.name + "! ";
+  const intro = {
+    learn: "Learn mode: I'll explain this chapter step by step. Press the button to begin, or ask me anything about it.",
+    doubt: "Ask a Doubt mode: tell me what you're stuck on, or type the problem.",
+    practice: "Practice mode: I'll give you questions one at a time. If you get one wrong, you'll get a hint and another try.",
+    quiz: "Quiz mode: 5 questions, no hints, and a score at the end.",
+    challenge: "Challenge mode: one tough problem. Think carefully!",
+  };
+  add("tutor", hi + intro[mode]);
+  if (mode === "learn") chips([["Explain this chapter", () => chatSend('Please explain the chapter "' + chapter + '" to me from the start.')]]);
+  if (mode === "practice") chips([["Start practice", startQuestions]]);
+  if (mode === "quiz") chips([["Start the quiz", startQuestions]]);
+  if (mode === "challenge") chips([["Give me a challenge", startQuestions]]);
+  $("box").placeholder = mode === "learn" || mode === "doubt" ? "Ask a question or reply to the tutor…" : "Type your answer here…";
+}
+
+/* ---------- chat modes (Learn, Ask a Doubt) ---------- */
+async function chatSend(text) {
+  if (busy) return;
+  setBusy(true); $("chips").innerHTML = ""; add("user", text); $("box").value = "";
+  hist.push({role: "user", content: text});
+  const out = add("tutor", "Thinking…");
+  try {
+    const d = await api("/api/chat", {messages: hist, mode, chapter, profile});
+    out.textContent = d.reply; hist.push({role: "assistant", content: d.reply});
+  } catch (e) {
+    hist.pop(); out.textContent = "Sorry, I couldn't answer that. Please try again.";
+  }
+  setBusy(false);
+}
+
+/* ---------- question modes (Practice, Quiz, Challenge): Steps 6 and 7 ---------- */
+async function startQuestions() {
+  if (busy) return;
+  setBusy(true); $("chips").innerHTML = "";
+  const count = mode === "quiz" ? 5 : mode === "challenge" ? 1 : 3;
+  const lv = mode === "challenge" ? "Advanced" : level;
+  const out = add("tutor", "Preparing your questions…");
+  try {
+    const d = await api("/api/questions", {chapter, difficulty: lv, count, mode, avoid: asked.slice(-10)});
+    queue = d.questions; qTotal = queue.length; qNum = 0; batchRight = 0; batchTotal = 0;
+    if (mode === "quiz") quizRight = 0;
+    out.parentElement.remove(); showNext();
+  } catch (e) {
+    out.textContent = "Sorry, I couldn't make questions just now."; chips([["Try again", startQuestions]]);
+  }
+  setBusy(false);
+}
+
+function showNext() {
+  $("chips").innerHTML = "";
+  if (!queue.length) return finishBatch();
+  current = queue.shift(); attempt = 0; qNum++; asked.push(current.question);
+  add("tutor", "Question " + qNum + " of " + qTotal + "\n" + current.question);
+  if (mode !== "quiz") chips([["Hint", () => add("tutor", "Hint: " + current.hint)]]);
+  $("box").focus();
+}
+
+function finishBatch() {
+  current = null;
+  if (mode === "quiz") {
+    add("tutor", "Quiz finished! You scored " + quizRight + " out of " + qTotal + ". Press 'End session' for your full summary, or take another quiz.");
+    chips([["Take another quiz", startQuestions]]);
+  } else if (mode === "challenge") {
+    add("tutor", "Nice effort! Ready for another one?");
+    chips([["Another challenge", startQuestions]]);
+  } else {
+    let i = LEVELS.indexOf(level), note = "";
+    if (batchTotal && batchRight === batchTotal && i < 2) { level = LEVELS[i + 1]; note = "You got them all right, so I'm moving you up to " + level + "."; }
+    else if (batchTotal && batchRight <= batchTotal / 3 && i > 0) { level = LEVELS[i - 1]; note = "Let's go a little easier, at " + level + " level, to build confidence."; }
+    add("tutor", "That's a set done. " + note);
+    chips([["More questions", startQuestions]]);
+  }
+}
+
+async function evaluate(text) {
+  setBusy(true); add("user", text); $("box").value = ""; $("chips").innerHTML = "";
+  const out = add("tutor", "Checking your answer…");
+  const reveal = mode === "quiz" || attempt >= 1;
+  try {
+    const d = await api("/api/evaluate", {chapter, question: current.question, answer: current.answer, student: text, reveal, profile});
+    const ok = d.verdict === "correct";
+    if (attempt === 0) {                              // Step 8: only the first try is scored
+      record(ok);
+      batchTotal++; if (ok) { batchRight++; if (mode === "quiz") quizRight++; }
+    }
+    let msg = (ok ? "Correct! " : d.verdict === "almost" ? "Almost correct. " : "Not quite. ") + d.explanation;
+    if (!ok) msg += reveal ? "\nCorrect answer: " + d.correct_answer : "\nHint: " + d.hint + "\nTry again!";
+    msg += "\n" + d.encouragement;
+    out.textContent = msg;
+    if (!ok && !reveal) { attempt++; chips([["Hint", () => add("tutor", "Hint: " + current.hint)]]); }
+    else chips([["Next question", showNext]]);
+  } catch (e) {
+    out.textContent = "Sorry, I couldn't check that. Please send your answer again.";
+  }
+  setBusy(false);
+}
+
+/* ---------- Step 8: strengths and weaknesses ---------- */
+function record(ok) {
+  const s = stats[chapter] || (stats[chapter] = {attempted: 0, correct: 0});
+  s.attempted++; if (ok) s.correct++;
+  if (!ok && current) weak[current.concept] = (weak[current.concept] || 0) + 1;
+  const strong = [], need = []; let a = 0, c = 0;
+  for (const [ch, st] of Object.entries(stats)) {
+    a += st.attempted; c += st.correct;
+    (st.attempted >= 2 && st.correct / st.attempted >= 0.7 ? strong : need).push(ch + " (" + st.correct + "/" + st.attempted + ")");
+  }
+  $("total").textContent = c + " correct out of " + a;
+  $("strong").textContent = strong.join("; ") || "-";
+  $("need").textContent = need.join("; ") || "-";
+}
+
+/* ---------- sending ---------- */
+function submit() {
+  const text = $("box").value.trim();
+  if (!text || busy) return;
+  if (mode === "learn" || mode === "doubt") return chatSend(text);
+  if (!current) { add("tutor", "Press the button below to get questions first."); return; }
+  evaluate(text);
+}
+$("f").onsubmit = e => { e.preventDefault(); submit(); };
+$("box").onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } };
+
+/* ---------- Step 9: end of session ---------- */
+$("end").onclick = async () => {
+  if (busy) return;
+  if (!Object.keys(stats).length) { add("tutor", "Answer a few questions first, then I can summarise your session."); return; }
+  setBusy(true);
+  const out = add("tutor", "Preparing your summary…");
+  try { out.textContent = (await api("/api/summary", {profile, stats, weak})).summary; }
+  catch (e) { out.textContent = "Sorry, I couldn't make the summary just now."; }
+  setBusy(false);
+};
+
+/* ---------- wiring ---------- */
+$("mode").onchange = () => { if (busy) { $("mode").value = mode; return; } mode = $("mode").value; setup(); };
+$("chapter").onchange = () => { if (busy) { $("chapter").value = chapter; return; } chapter = $("chapter").value; setup(); };
+$("edit").onclick = () => { if (!busy) { $("app").hidden = true; $("onb").hidden = false; } };
+$("onbForm").onsubmit = e => {
+  e.preventDefault();
+  profile = {name: $("oName").value.trim(), feeling: $("oFeel").value, difficulty: $("oDiff").value};
+  chapter = $("oChapter").value; $("chapter").value = chapter;
+  $("onb").hidden = true; $("app").hidden = false; setup();
+};
+
+fetch("/api/config").then(r => r.json()).then(d => { CH = d.chapters; fillChapters($("oChapter")); fillChapters($("chapter")); });
+</script>
+</body>
+</html>
