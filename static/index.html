@@ -61,12 +61,12 @@
   .go:hover{box-shadow:0 12px 26px rgba(139,92,246,.45)}
 
   /* ---------- main screen ---------- */
-  .wrap{max-width:1100px;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:100vh;min-height:100dvh}
+  .wrap{max-width:1280px;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:8px;height:100vh;height:100dvh}
   .top{
-    display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:18px;color:#fff;
+    display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:18px;color:#fff;
     background:linear-gradient(135deg,var(--acc),var(--acc2) 60%,var(--acc3));box-shadow:var(--shadow);
   }
-  .top .logo{width:44px;height:44px;margin:0;font-size:24px;border-radius:14px;background:rgba(255,255,255,.22);animation:none;box-shadow:none}
+  .top .logo{width:42px;height:42px;margin:0;font-size:23px;border-radius:14px;background:rgba(255,255,255,.22);animation:none;box-shadow:none}
   .top h1{font-size:19px}
   .top .sub{color:rgba(255,255,255,.88)}
   .top .push{margin-left:auto}
@@ -81,34 +81,50 @@
   .tab:hover{border-color:var(--acc)}
   .tab.on{color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 6px 16px rgba(99,102,241,.35)}
 
-  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mut)}
-  .bar select{padding:7px 10px;font-size:14px;max-width:100%}
-  .pill{background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:600;color:var(--acc)}
+  /* ---------- two-column layout: sidebar + chat ---------- */
+  .main{flex:1;min-height:0;display:grid;grid-template-columns:270px minmax(0,1fr);gap:10px}
+  .main.big{grid-template-columns:minmax(0,1fr)}
+  .main.big .side{display:none}
 
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .stat{background:var(--card);border-radius:14px;padding:8px 12px;border:1.5px solid var(--line);font-size:13px;min-width:0}
-  .stat b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin-bottom:2px}
-  .stat span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .side{display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0;padding-right:2px}
+  .sidecard,.stat{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
+  .sidecard{display:flex;flex-direction:column;gap:8px}
+  .lab,.stat b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin-bottom:2px;font-weight:700}
+  .side select{width:100%;padding:8px 10px;font-size:14px}
+  .pill{align-self:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600;color:var(--acc)}
+  .stat{font-size:14px}
   .stat.s1{border-left:5px solid var(--acc)}
   .stat.s2{border-left:5px solid var(--ok)}
   .stat.s3{border-left:5px solid var(--warn)}
+  .lst .it{font-size:13px;padding:4px 0;border-top:1px dashed var(--line)}
+  .lst .it:first-child{border-top:0}
+  #end{
+    border:1.5px dashed var(--acc3);color:var(--acc3);background:transparent;
+    border-radius:14px;padding:10px;font-weight:600;font-size:14px;margin-top:auto;
+  }
+  #end:hover{background:var(--acc3);color:#fff}
+
+  .chatcol{display:flex;flex-direction:column;gap:8px;min-height:0;min-width:0}
 
   /* ---------- chat window ---------- */
-  .chatbox{flex:none;height:max(300px,calc(90dvh - 300px));display:flex;flex-direction:column;background:var(--card);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
-  .wrap.big .stats,.wrap.big .bar{display:none}
-  .wrap.big .chatbox{height:max(300px,calc(90dvh - 215px))}
-  .bigbtn{margin-left:auto;border:1.5px solid var(--acc);color:var(--acc);background:var(--card);border-radius:899px;padding:3px 12px;font-size:12px;font-weight:700}
-  .bigbtn:hover{background:var(--acc);color:#fff}
+  .chatbox{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--card);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
   .chathead{
     display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;font-size:13px;font-weight:600;
     color:var(--acc);background:linear-gradient(90deg,rgba(99,102,241,.10),rgba(236,72,153,.10));border-bottom:1px solid var(--line);
   }
   .chathead .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(22,163,74,.2)}
   .chathead .mut{color:var(--mut);font-weight:500}
+  .explain{
+    border:0;color:#fff;font-weight:700;font-size:12px;border-radius:999px;padding:4px 14px;
+    background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 3px 10px rgba(99,102,241,.35);
+  }
+  .explain:hover{box-shadow:0 5px 14px rgba(99,102,241,.5)}
+  .bigbtn{margin-left:auto;border:1.5px solid var(--acc);color:var(--acc);background:var(--card);border-radius:999px;padding:3px 12px;font-size:12px;font-weight:700}
+  .bigbtn:hover{background:var(--acc);color:#fff}
   .prog{height:5px;background:var(--line)}
   .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc3));transition:width .4s}
   #chat{
-    flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;
+    flex:1;min-height:0;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;font-size:17px;
     background-color:var(--chatbg);
     background-image:radial-gradient(rgba(99,102,241,.12) 1px, transparent 1px);background-size:22px 22px;
   }
@@ -120,7 +136,7 @@
     background:linear-gradient(135deg,var(--acc),var(--acc3));box-shadow:0 4px 10px rgba(99,102,241,.3);
   }
   .row.u .av{background:linear-gradient(135deg,#0ea5e9,#6366f1);font-size:16px;font-weight:700}
-  .bub{max-width:88%;padding:12px 15px;border-radius:18px;word-wrap:break-word;box-shadow:0 2px 8px rgba(30,27,75,.08)}
+  .bub{max-width:88%;padding:12px 16px;border-radius:18px;word-wrap:break-word;box-shadow:0 2px 8px rgba(30,27,75,.08)}
   .row.t .bub{background:var(--tutor);border:1px solid var(--tutorline);border-bottom-left-radius:6px}
   .row.u .bub{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-bottom-right-radius:6px;white-space:pre-wrap}
   .who{font-size:11px;font-weight:700;margin-bottom:3px;opacity:.7;letter-spacing:.3px}
@@ -145,7 +161,6 @@
   .call.ans{background:var(--okbg);border-left:4px solid var(--ok)}
   .call b{color:inherit}
 
-  /* question card */
   .bub.qcard{border:2px solid var(--acc);background:var(--card)}
   .qbadge{
     display:inline-block;margin-bottom:6px;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;
@@ -153,7 +168,6 @@
   }
   .qcard .body p{font-size:1.08em;font-weight:600}
 
-  /* feedback cards */
   .bub.good{background:var(--okbg);border:1px solid var(--ok)}
   .bub.almost{background:var(--warnbg);border:1px solid var(--warn)}
   .bub.bad{background:var(--badbg);border:1px solid var(--bad)}
@@ -162,19 +176,17 @@
   .enc{font-style:italic;opacity:.9;margin-top:6px!important}
   .retry{font-weight:700}
 
-  /* summary report */
   .sumhead{font-size:1.15em;font-weight:800;margin:2px 0 8px;color:var(--acc)}
   .kv{display:flex;gap:8px;flex-wrap:wrap;padding:6px 10px;margin:4px 0;border-radius:10px;background:var(--card);border:1px solid var(--line)}
   .kv b{min-width:150px}
 
-  /* typing dots */
   .dots{display:inline-flex;gap:5px;padding:4px 2px}
   .dots i{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:blink 1.2s infinite ease-in-out}
   .dots i:nth-child(2){animation-delay:.2s} .dots i:nth-child(3){animation-delay:.4s}
   @keyframes blink{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1.15)}}
 
-  /* quick replies */
   #chips{display:flex;gap:8px;flex-wrap:wrap}
+  #chips:empty{display:none}
   #chips button{
     border:1.5px solid var(--acc);color:var(--acc);background:var(--card);
     border-radius:999px;padding:8px 16px;font-weight:600;font-size:14px;animation:pop .25s ease-out;
@@ -187,25 +199,24 @@
     border:0;color:#fff;font-weight:700;border-radius:16px;padding:0 24px;height:48px;
     background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 6px 16px rgba(99,102,241,.35);
   }
-  #end{border:1.5px dashed var(--acc3);color:var(--acc3);background:transparent;border-radius:14px;padding:10px;font-weight:600}
-  #end:hover{background:var(--acc3);color:#fff}
 
-  /* confetti */
   .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
   .confetti span{position:absolute;top:-40px;animation:fall 1.9s ease-in forwards}
   @keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:.2}}
 
-  @media (max-width:560px){
-    .stats{grid-template-columns:1fr}
-    .bub{max-width:90%}
+  /* ---------- phones and small screens: chat first, stats below ---------- */
+  @media (max-width:820px){
+    .wrap{height:auto;min-height:100dvh}
+    .main{grid-template-columns:minmax(0,1fr);flex:none}
+    .chatcol{order:1}
+    .side{order:2;overflow:visible}
+    .chatbox{flex:none;height:72dvh;min-height:420px}
+    #end{margin-top:0}
+    .bub{max-width:92%}
     .top .sub{display:none}
     .kv b{min-width:100%}
+    .bigbtn{display:none}
   }
-      .explain{
-    border:0;color:#fff;font-weight:700;font-size:12px;border-radius:999px;padding:4px 14px;
-    background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 3px 10px rgba(99,102,241,.35);
-  }
-  .explain:hover{box-shadow:0 5px 14px rgba(99,102,241,.5)}
 </style>
 </head>
 <body>
@@ -247,29 +258,38 @@
     <option value="challenge">Challenge</option>
   </select>
 
-  <div class="bar">
-    <span>📘 Chapter</span> <select id="chapter"></select>
-    <span class="pill" id="lvl"></span>
-  </div>
+  <div class="main" id="main">
+    <!-- LEFT: sidebar -->
+    <aside class="side">
+      <div class="sidecard">
+        <span class="lab">📘 Chapter</span>
+        <select id="chapter"></select>
+        <span class="pill" id="lvl"></span>
+      </div>
+      <div class="stat s1"><b>Score</b><span id="total">no answers yet</span></div>
+      <div class="stat s2"><b>Strong</b><div class="lst" id="strong">-</div></div>
+      <div class="stat s3"><b>Needs practice</b><div class="lst" id="need">-</div></div>
+      <button type="button" id="end">📊 End session and see my summary</button>
+    </aside>
 
-  <div class="stats" id="panel">
-    <div class="stat s1"><b>Score</b><span id="total">no answers yet</span></div>
-    <div class="stat s2"><b>Strong</b><span id="strong">-</span></div>
-    <div class="stat s3"><b>Needs practice</b><span id="need">-</span></div>
+    <!-- RIGHT: chat -->
+    <section class="chatcol">
+      <div class="chatbox">
+        <div class="chathead">
+          <span class="dot"></span><span id="chmode"></span><span class="mut" id="chch"></span>
+          <button type="button" class="explain" id="explainBtn">📖 Explain this chapter</button>
+          <button type="button" class="bigbtn" id="big">⤢ Full width</button>
+        </div>
+        <div class="prog" id="progw" hidden><i id="progbar"></i></div>
+        <div id="chat" aria-live="polite"></div>
+      </div>
+      <div id="chips"></div>
+      <form id="f">
+        <textarea id="box" rows="1" placeholder="Type here…"></textarea>
+        <button id="send" type="submit">Send ➤</button>
+      </form>
+    </section>
   </div>
-
-  <div class="chatbox">
-    <div class="chathead"><span class="dot"></span><span id="chmode"></span><span class="mut" id="chch"></span><button type="button" class="explain" id="explainBtn">📖 Explain this chapter</button><button type="button" class="bigbtn" id="big">⤢ Bigger chat</button></div>
-    <div class="prog" id="progw" hidden><i id="progbar"></i></div>
-    <div id="chat" aria-live="polite"></div>
-  </div>
-  <div id="chips"></div>
-
-  <form id="f">
-    <textarea id="box" rows="1" placeholder="Type here…"></textarea>
-    <button id="send" type="submit">Send ➤</button>
-  </form>
-  <button type="button" id="end">📊 End session and see my summary</button>
 </div>
 
 <script>
@@ -415,16 +435,16 @@ function setup() {
   $("lvl").textContent = "🎯 " + profile.difficulty;
   $("hello").textContent = "Hi " + profile.name + "! Let's learn some maths.";
   $("chmode").textContent = MODE_ICONS[mode]; $("chch").textContent = "· " + chapter;
+  $("explainBtn").hidden = mode !== "learn";
   syncTabs();
   const intro = {
-    learn: "Learn mode: I'll explain this chapter step by step. Press the button to begin, or ask me anything about it.",
+    learn: "Learn mode: I'll explain this chapter step by step. Press the button at the top, or ask me anything about it.",
     doubt: "Ask a Doubt mode: tell me what you're stuck on, or type the problem.",
     practice: "Practice mode: I'll give you questions one at a time. If you get one wrong, you'll get a hint and another try.",
     quiz: "Quiz mode: 5 questions, no hints, and a score at the end.",
     challenge: "Challenge mode: one tough problem. Think carefully!",
   };
   add("tutor", "Hi " + profile.name + "! " + intro[mode]);
-  $("explainBtn").onclick = () => chatSend('Please explain the chapter "' + chapter + '" to me from the start.');
   if (mode === "practice") chips([["✏️ Start practice", startQuestions]]);
   if (mode === "quiz") chips([["📝 Start the quiz", startQuestions]]);
   if (mode === "challenge") chips([["🏆 Give me a challenge", startQuestions]]);
@@ -513,7 +533,12 @@ async function evaluate(text) {
   setBusy(false);
 }
 
-/* ================= strengths and weaknesses ================= */
+/* ================= strengths and weaknesses (sidebar) ================= */
+function fillList(el, items) {
+  el.innerHTML = "";
+  if (!items.length) { el.textContent = "-"; return; }
+  items.forEach(t => { const d = document.createElement("div"); d.className = "it"; d.textContent = t; el.append(d); });
+}
 function record(ok) {
   const s = stats[chapter] || (stats[chapter] = {attempted: 0, correct: 0});
   s.attempted++; if (ok) s.correct++;
@@ -524,9 +549,7 @@ function record(ok) {
     (st.attempted >= 2 && st.correct / st.attempted >= 0.7 ? strong : need).push(ch + " (" + st.correct + "/" + st.attempted + ")");
   }
   $("total").textContent = c + " correct out of " + a;
-  $("strong").textContent = strong.join("; ") || "-";
-  $("need").textContent = need.join("; ") || "-";
-  $("strong").title = $("strong").textContent; $("need").title = $("need").textContent;
+  fillList($("strong"), strong); fillList($("need"), need);
 }
 
 /* ================= sending ================= */
@@ -555,6 +578,12 @@ $("end").onclick = async () => {
 $("mode").onchange = () => { if (busy) { $("mode").value = mode; return; } mode = $("mode").value; setup(); };
 $("chapter").onchange = () => { if (busy) { $("chapter").value = chapter; return; } chapter = $("chapter").value; setup(); };
 $("edit").onclick = () => { if (!busy) { $("app").hidden = true; $("onb").hidden = false; } };
+$("explainBtn").onclick = () => chatSend('Please explain the chapter "' + chapter + '" to me from the start.');
+$("big").onclick = () => {
+  const on = $("main").classList.toggle("big");
+  $("big").textContent = on ? "⤡ Show sidebar" : "⤢ Full width";
+  scrollDown();
+};
 $("onbForm").onsubmit = e => {
   e.preventDefault();
   profile = {name: $("oName").value.trim(), feeling: $("oFeel").value, difficulty: $("oDiff").value};
@@ -562,11 +591,6 @@ $("onbForm").onsubmit = e => {
   $("onb").hidden = true; $("app").hidden = false; setup();
 };
 
-$("big").onclick = () => {
-  const on = $("app").classList.toggle("big");
-  $("big").textContent = on ? "⤡ Normal size" : "⤢ Bigger chat";
-  scrollDown();
-};
 buildTabs();
 fetch("/api/config").then(r => r.json()).then(d => { CH = d.chapters; fillChapters($("oChapter")); fillChapters($("chapter")); });
 </script>
