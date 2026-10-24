@@ -5,91 +5,285 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MathMentor – Class 8 Maths Tutor</title>
 <style>
+  :root{
+    --bg1:#eef2ff; --bg2:#fdf2f8; --card:#ffffff; --ink:#1e1b4b; --mut:#6b7280;
+    --line:#e5e7eb; --acc:#6366f1; --acc2:#8b5cf6; --acc3:#ec4899;
+    --tutor:#f5f3ff; --tutorline:#c7d2fe; --ok:#16a34a; --okbg:#ecfdf5;
+    --warn:#d97706; --warnbg:#fffbeb; --bad:#dc2626; --badbg:#fef2f2;
+    --hintbg:#fef9c3; --hintline:#eab308; --eqbg:#eef2ff; --chatbg:#fbfbff;
+    --shadow:0 10px 30px rgba(99,102,241,.15);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg1:#0f1020; --bg2:#1a1030; --card:#181a2e; --ink:#eceafc; --mut:#a3a3c2;
+      --line:#2b2e4a; --tutor:#23264a; --tutorline:#3b4080; --okbg:#10291c; --warnbg:#2c2210;
+      --badbg:#2e1417; --hintbg:#2c2a10; --eqbg:#1d2040; --chatbg:#14162a; --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+      --shadow:0 10px 30px rgba(0,0,0,.4);
+    }
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:#f6f7fb;color:#1d2433;font:16px/1.5 system-ui,sans-serif}
+  body{
+    margin:0; color:var(--ink);
+    font:16px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2)) fixed; min-height:100vh;
+  }
   [hidden]{display:none!important}
-  h1{font-size:22px;margin:0}
-  .sub{color:#5c667a;font-size:14px;margin:2px 0 0}
-  .onb{max-width:460px;margin:0 auto;padding:20px 16px}
-  .onb form{display:flex;flex-direction:column;gap:14px;margin-top:14px}
-  label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:#5c667a}
-  select,input,textarea{font:inherit;padding:9px;border:1px solid #dfe3ec;border-radius:8px;background:#fff;color:#1d2433}
-  button{font:inherit;cursor:pointer;border:1px solid #dfe3ec;background:#fff;border-radius:999px;padding:6px 14px;font-size:14px}
-  .go,#send{background:#3b5bdb;color:#fff;border-color:#3b5bdb;border-radius:10px}
-  .go{padding:12px;font-size:16px}
+  h1{margin:0;font-size:22px;letter-spacing:.2px}
+  .sub{margin:0;color:var(--mut);font-size:14px}
+  select,input,textarea{
+    font:inherit;color:var(--ink);background:var(--card);
+    border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;outline:none;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  select:focus,input:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+  button{font:inherit;cursor:pointer;transition:transform .12s, box-shadow .2s, opacity .2s, background .2s}
+  button:active{transform:scale(.97)}
   button:disabled{opacity:.5;cursor:default}
-  .wrap{max-width:760px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:10px;height:100vh}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;color:#5c667a}
-  #panel{background:#fff;border:1px solid #dfe3ec;border-radius:10px;padding:8px 12px;font-size:13px}
-  #chat{flex:1;overflow-y:auto;background:#fff;border:1px solid #dfe3ec;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
-  .m{max-width:85%;padding:10px 12px;border-radius:12px;white-space:pre-wrap}
-  .t{background:#f1f3f9;align-self:flex-start}
-  .u{background:#e7ecff;align-self:flex-end}
-  .who{font-size:12px;color:#5c667a}
-  #chips{display:flex;gap:6px;flex-wrap:wrap}
-  #f{display:flex;gap:8px}
-  #box{flex:1;resize:none}
-  #send{padding:0 20px}
+
+  /* ---------- welcome screen ---------- */
+  .onb{max-width:480px;margin:0 auto;padding:28px 16px}
+  .hero{text-align:center;margin-bottom:18px}
+  .logo{
+    width:72px;height:72px;margin:0 auto 10px;border-radius:22px;display:grid;place-items:center;
+    font-size:38px;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc3));
+    box-shadow:var(--shadow);animation:float 3s ease-in-out infinite;
+  }
+  @keyframes float{50%{transform:translateY(-6px)}}
+  .hero h1{font-size:28px}
+  .formcard{background:var(--card);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+  .formcard form{display:flex;flex-direction:column;gap:14px}
+  label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--mut)}
+  .go{
+    border:0;color:#fff;font-size:17px;font-weight:600;padding:14px;border-radius:14px;
+    background:linear-gradient(135deg,var(--acc),var(--acc2) 55%,var(--acc3));
+    box-shadow:0 8px 20px rgba(139,92,246,.35);
+  }
+  .go:hover{box-shadow:0 12px 26px rgba(139,92,246,.45)}
+
+  /* ---------- main screen ---------- */
+  .wrap{max-width:1100px;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:100vh;min-height:100dvh}
+  .top{
+    display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:18px;color:#fff;
+    background:linear-gradient(135deg,var(--acc),var(--acc2) 60%,var(--acc3));box-shadow:var(--shadow);
+  }
+  .top .logo{width:44px;height:44px;margin:0;font-size:24px;border-radius:14px;background:rgba(255,255,255,.22);animation:none;box-shadow:none}
+  .top h1{font-size:19px}
+  .top .sub{color:rgba(255,255,255,.88)}
+  .top .push{margin-left:auto}
+  .ghost{border:1.5px solid rgba(255,255,255,.6);color:#fff;background:rgba(255,255,255,.15);border-radius:999px;padding:6px 14px;font-size:13px}
+  .ghost:hover{background:rgba(255,255,255,.3)}
+
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding:2px}
+  .tab{
+    border:1.5px solid var(--line);background:var(--card);color:var(--ink);white-space:nowrap;
+    border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;
+  }
+  .tab:hover{border-color:var(--acc)}
+  .tab.on{color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 6px 16px rgba(99,102,241,.35)}
+
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mut)}
+  .bar select{padding:7px 10px;font-size:14px;max-width:100%}
+  .pill{background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:600;color:var(--acc)}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat{background:var(--card);border-radius:14px;padding:8px 12px;border:1.5px solid var(--line);font-size:13px;min-width:0}
+  .stat b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin-bottom:2px}
+  .stat span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stat.s1{border-left:5px solid var(--acc)}
+  .stat.s2{border-left:5px solid var(--ok)}
+  .stat.s3{border-left:5px solid var(--warn)}
+
+  /* ---------- chat window ---------- */
+  .chatbox{flex:none;height:max(300px,calc(90dvh - 300px));display:flex;flex-direction:column;background:var(--card);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+  .wrap.big .stats,.wrap.big .bar{display:none}
+  .wrap.big .chatbox{height:max(300px,calc(90dvh - 215px))}
+  .bigbtn{margin-left:auto;border:1.5px solid var(--acc);color:var(--acc);background:var(--card);border-radius:899px;padding:3px 12px;font-size:12px;font-weight:700}
+  .bigbtn:hover{background:var(--acc);color:#fff}
+  .chathead{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;font-size:13px;font-weight:600;
+    color:var(--acc);background:linear-gradient(90deg,rgba(99,102,241,.10),rgba(236,72,153,.10));border-bottom:1px solid var(--line);
+  }
+  .chathead .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(22,163,74,.2)}
+  .chathead .mut{color:var(--mut);font-weight:500}
+  .prog{height:5px;background:var(--line)}
+  .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc3));transition:width .4s}
+  #chat{
+    flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;
+    background-color:var(--chatbg);
+    background-image:radial-gradient(rgba(99,102,241,.12) 1px, transparent 1px);background-size:22px 22px;
+  }
+  .row{display:flex;gap:10px;align-items:flex-end;animation:pop .28s ease-out;max-width:100%}
+  .row.u{flex-direction:row-reverse}
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  .av{
+    flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:20px;color:#fff;
+    background:linear-gradient(135deg,var(--acc),var(--acc3));box-shadow:0 4px 10px rgba(99,102,241,.3);
+  }
+  .row.u .av{background:linear-gradient(135deg,#0ea5e9,#6366f1);font-size:16px;font-weight:700}
+  .bub{max-width:88%;padding:12px 15px;border-radius:18px;word-wrap:break-word;box-shadow:0 2px 8px rgba(30,27,75,.08)}
+  .row.t .bub{background:var(--tutor);border:1px solid var(--tutorline);border-bottom-left-radius:6px}
+  .row.u .bub{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-bottom-right-radius:6px;white-space:pre-wrap}
+  .who{font-size:11px;font-weight:700;margin-bottom:3px;opacity:.7;letter-spacing:.3px}
+  .time{font-size:10px;opacity:.5;margin-top:4px;text-align:right}
+  .body p{margin:0 0 8px}
+  .body p:last-child{margin-bottom:0}
+  .body ul,.body ol{margin:4px 0 8px;padding-left:22px}
+  .body li{margin:3px 0}
+  .body b{color:var(--acc)}
+  .row.u .body b{color:#fff}
+  .body code{background:rgba(99,102,241,.14);padding:1px 6px;border-radius:6px;font-family:Consolas,monospace;font-size:.92em}
+  .eq{
+    margin:8px 0;padding:8px 14px;text-align:center;font-family:"Cambria Math",Cambria,Georgia,serif;font-size:1.2em;
+    background:var(--eqbg);border-radius:12px;border:1px dashed var(--acc);
+  }
+  .frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1;font-size:.9em;margin:0 3px}
+  .frac span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+  .frac span:last-child{padding:0 4px}
+  .call{display:flex;gap:10px;align-items:flex-start;margin:8px 0;padding:8px 12px;border-radius:12px}
+  .call>span{font-size:18px;line-height:1.3}
+  .call.hint{background:var(--hintbg);border-left:4px solid var(--hintline)}
+  .call.ans{background:var(--okbg);border-left:4px solid var(--ok)}
+  .call b{color:inherit}
+
+  /* question card */
+  .bub.qcard{border:2px solid var(--acc);background:var(--card)}
+  .qbadge{
+    display:inline-block;margin-bottom:6px;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;
+    background:linear-gradient(135deg,var(--acc),var(--acc3));
+  }
+  .qcard .body p{font-size:1.08em;font-weight:600}
+
+  /* feedback cards */
+  .bub.good{background:var(--okbg);border:1px solid var(--ok)}
+  .bub.almost{background:var(--warnbg);border:1px solid var(--warn)}
+  .bub.bad{background:var(--badbg);border:1px solid var(--bad)}
+  .vtitle{font-size:1.1em;font-weight:800;margin-bottom:4px}
+  .good .vtitle{color:var(--ok)} .almost .vtitle{color:var(--warn)} .bad .vtitle{color:var(--bad)}
+  .enc{font-style:italic;opacity:.9;margin-top:6px!important}
+  .retry{font-weight:700}
+
+  /* summary report */
+  .sumhead{font-size:1.15em;font-weight:800;margin:2px 0 8px;color:var(--acc)}
+  .kv{display:flex;gap:8px;flex-wrap:wrap;padding:6px 10px;margin:4px 0;border-radius:10px;background:var(--card);border:1px solid var(--line)}
+  .kv b{min-width:150px}
+
+  /* typing dots */
+  .dots{display:inline-flex;gap:5px;padding:4px 2px}
+  .dots i{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:blink 1.2s infinite ease-in-out}
+  .dots i:nth-child(2){animation-delay:.2s} .dots i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1.15)}}
+
+  /* quick replies */
+  #chips{display:flex;gap:8px;flex-wrap:wrap}
+  #chips button{
+    border:1.5px solid var(--acc);color:var(--acc);background:var(--card);
+    border-radius:999px;padding:8px 16px;font-weight:600;font-size:14px;animation:pop .25s ease-out;
+  }
+  #chips button:hover{background:var(--acc);color:#fff}
+
+  #f{display:flex;gap:10px;align-items:flex-end}
+  #box{flex:1;resize:none;border-radius:16px;min-height:48px}
+  #send{
+    border:0;color:#fff;font-weight:700;border-radius:16px;padding:0 24px;height:48px;
+    background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 6px 16px rgba(99,102,241,.35);
+  }
+  #end{border:1.5px dashed var(--acc3);color:var(--acc3);background:transparent;border-radius:14px;padding:10px;font-weight:600}
+  #end:hover{background:var(--acc3);color:#fff}
+
+  /* confetti */
+  .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+  .confetti span{position:absolute;top:-40px;animation:fall 1.9s ease-in forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:.2}}
+
+  @media (max-width:560px){
+    .stats{grid-template-columns:1fr}
+    .bub{max-width:90%}
+    .top .sub{display:none}
+    .kv b{min-width:100%}
+  }
+      .explain{
+    border:0;color:#fff;font-weight:700;font-size:12px;border-radius:999px;padding:4px 14px;
+    background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 3px 10px rgba(99,102,241,.35);
+  }
+  .explain:hover{box-shadow:0 5px 14px rgba(99,102,241,.5)}
 </style>
 </head>
 <body>
 
-<!-- Personalization form (Step 5) -->
+<!-- Welcome / personalization screen -->
 <div class="onb" id="onb">
-  <h1>Welcome to MathMentor</h1>
-  <p class="sub">Your Class 8 maths tutor (CBSE, NCERT Ganita Prakash). Tell me about you first.</p>
-  <form id="onbForm">
-    <label>Your name<input id="oName" required maxlength="30"></label>
-    <label>How do you feel about maths?
-      <select id="oFeel"><option>I find it hard</option><option selected>I'm okay at it</option><option>I'm good at it</option></select></label>
-    <label>Chapter to study<select id="oChapter"></select></label>
-    <label>Difficulty
-      <select id="oDiff"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label>
-    <button class="go" type="submit">Start learning</button>
-  </form>
+  <div class="hero">
+    <div class="logo">∑</div>
+    <h1>Welcome to MathMentor</h1>
+    <p class="sub">Your friendly Class 8 maths tutor · CBSE · NCERT Ganita Prakash</p>
+  </div>
+  <div class="formcard">
+    <form id="onbForm">
+      <label>Your name<input id="oName" required maxlength="30" placeholder="e.g. Aarav"></label>
+      <label>How do you feel about maths?
+        <select id="oFeel"><option>I find it hard</option><option selected>I'm okay at it</option><option>I'm good at it</option></select></label>
+      <label>Chapter to study<select id="oChapter"></select></label>
+      <label>Difficulty
+        <select id="oDiff"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label>
+      <button class="go" type="submit">Start learning →</button>
+    </form>
+  </div>
 </div>
 
-<!-- Main interface (Step 3) -->
+<!-- Main tutor screen -->
 <div class="wrap" id="app" hidden>
-  <div><h1>MathMentor</h1><p class="sub">Class 8 Maths Tutor</p></div>
-  <div class="row">
-    <label style="flex-direction:row;align-items:center;gap:6px">Mode
-      <select id="mode">
-        <option value="learn">Learn</option>
-        <option value="doubt">Ask a Doubt</option>
-        <option value="practice">Practice</option>
-        <option value="quiz">Quiz</option>
-        <option value="challenge">Challenge</option>
-      </select></label>
-    <label style="flex-direction:row;align-items:center;gap:6px">Chapter <select id="chapter"></select></label>
-    <span id="lvl"></span>
-    <button type="button" id="edit" style="margin-left:auto">Change details</button>
+  <div class="top">
+    <div class="logo">∑</div>
+    <div><h1>MathMentor</h1><p class="sub" id="hello">Class 8 Maths Tutor</p></div>
+    <button type="button" class="ghost push" id="edit">Change details</button>
   </div>
-  <div id="panel">
-    <b>Your progress:</b> <span id="total">no answers yet</span><br>
-    <b>Strong:</b> <span id="strong">-</span><br>
-    <b>Needs practice:</b> <span id="need">-</span>
+
+  <div class="tabs" id="tabs"></div>
+  <select id="mode" hidden>
+    <option value="learn">Learn</option>
+    <option value="doubt">Ask a Doubt</option>
+    <option value="practice">Practice</option>
+    <option value="quiz">Quiz</option>
+    <option value="challenge">Challenge</option>
+  </select>
+
+  <div class="bar">
+    <span>📘 Chapter</span> <select id="chapter"></select>
+    <span class="pill" id="lvl"></span>
   </div>
-  <div id="chat" aria-live="polite"></div>
+
+  <div class="stats" id="panel">
+    <div class="stat s1"><b>Score</b><span id="total">no answers yet</span></div>
+    <div class="stat s2"><b>Strong</b><span id="strong">-</span></div>
+    <div class="stat s3"><b>Needs practice</b><span id="need">-</span></div>
+  </div>
+
+  <div class="chatbox">
+    <div class="chathead"><span class="dot"></span><span id="chmode"></span><span class="mut" id="chch"></span><button type="button" class="explain" id="explainBtn">📖 Explain this chapter</button><button type="button" class="bigbtn" id="big">⤢ Bigger chat</button></div>
+    <div class="prog" id="progw" hidden><i id="progbar"></i></div>
+    <div id="chat" aria-live="polite"></div>
+  </div>
   <div id="chips"></div>
+
   <form id="f">
-    <textarea id="box" rows="2" placeholder="Type here…"></textarea>
-    <button id="send" type="submit">Send</button>
+    <textarea id="box" rows="1" placeholder="Type here…"></textarea>
+    <button id="send" type="submit">Send ➤</button>
   </form>
-  <button type="button" id="end">End session and see my summary</button>
+  <button type="button" id="end">📊 End session and see my summary</button>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
+const MODE_ICONS = {learn: "📖 Learn", doubt: "🙋 Ask a Doubt", practice: "✏️ Practice", quiz: "📝 Quiz", challenge: "🏆 Challenge"};
 
-let CH = {};                                    // unit -> chapters (from the server)
+let CH = {};
 let profile = {name: "", feeling: "", difficulty: "Beginner"};
 let mode = "learn", chapter = "", level = "Beginner";
-let busy = false, hist = [];                    // chat history for Learn / Doubt
-let queue = [], current = null, attempt = 0;    // question flow
+let busy = false, hist = [];
+let queue = [], current = null, attempt = 0;
 let asked = [], qNum = 0, qTotal = 0, batchRight = 0, batchTotal = 0, quizRight = 0;
-let stats = {}, weak = {};                      // Step 8: learner profile for this session
+let stats = {}, weak = {};
 
 async function api(path, body) {
   const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
@@ -98,14 +292,95 @@ async function api(path, body) {
   return d;
 }
 
+/* ================= rich text for tutor answers ================= */
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+function inline(s) {
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+  s = s.replace(/\^(\d+)/g, "<sup>$1</sup>");
+  s = s.replace(/\b(\d+)\/(\d+)\b/g, '<span class="frac"><span>$1</span><span>$2</span></span>');
+  return s;
+}
+function isEquation(l) {
+  return l.length <= 60 && l.includes("=") && /\d/.test(l) && !/[A-Za-z]{4,}/.test(l) && /^[\s\w()+\-*\/^.=×÷²³√,]+$/.test(l);
+}
+function rich(text) {
+  let html = "", list = null;
+  const close = () => { if (list) { html += "</" + list + ">"; list = null; } };
+  for (const raw of String(text || "").split("\n")) {
+    const line = raw.trim(); let m;
+    if (!line) { close(); continue; }
+    if ((m = line.match(/^Hint:\s*(.*)$/i))) { close(); html += '<div class="call hint"><span>💡</span><div>' + inline(m[1]) + "</div></div>"; continue; }
+    if ((m = line.match(/^Correct answer:\s*(.*)$/i))) { close(); html += '<div class="call ans"><span>✔️</span><div><b>Correct answer:</b> ' + inline(m[1]) + "</div></div>"; continue; }
+    if (/^Today's Performance$/i.test(line)) { close(); html += '<div class="sumhead">📊 ' + esc(line) + "</div>"; continue; }
+    if ((m = line.match(/^(Questions attempted|Correct|Strong areas|Needs improvement|Recommended next lesson):\s*(.*)$/))) {
+      close(); html += '<div class="kv"><b>' + m[1] + "</b><span>" + inline(m[2]) + "</span></div>"; continue;
+    }
+    if ((m = line.match(/^[-*•]\s+(.*)$/))) { if (list !== "ul") { close(); html += "<ul>"; list = "ul"; } html += "<li>" + inline(m[1]) + "</li>"; continue; }
+    if ((m = line.match(/^(\d+)[.)]\s+(.*)$/))) { if (list !== "ol") { close(); html += "<ol>"; list = "ol"; } html += "<li>" + inline(m[2]) + "</li>"; continue; }
+    close();
+    html += isEquation(line) ? '<div class="eq">' + inline(line) + "</div>" : "<p>" + inline(line) + "</p>";
+  }
+  close();
+  return html;
+}
+
+/* ================= chat bubbles ================= */
+function scrollDown() { $("chat").scrollTop = $("chat").scrollHeight; }
+
 function add(role, text) {
-  const d = document.createElement("div");
-  d.className = "m " + (role === "user" ? "u" : "t");
+  const row = document.createElement("div"); row.className = "row " + (role === "user" ? "u" : "t");
+  const av = document.createElement("div"); av.className = "av";
+  av.textContent = role === "user" ? (profile.name ? profile.name[0].toUpperCase() : "Y") : "🎓";
+  const bub = document.createElement("div"); bub.className = "bub";
   const w = document.createElement("div"); w.className = "who"; w.textContent = role === "user" ? "You" : "MathMentor";
-  const b = document.createElement("div"); b.textContent = text;
-  d.append(w, b); $("chat").append(d); $("chat").scrollTop = $("chat").scrollHeight;
+  const b = document.createElement("div"); b.className = "body";
+  if (role === "user") b.textContent = text; else if (text) b.innerHTML = rich(text);
+  const t = document.createElement("div"); t.className = "time";
+  t.textContent = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+  bub.append(w, b, t); row.append(av, bub);
+  $("chat").append(row); scrollDown();
   return b;
 }
+function think() { const b = add("tutor", ""); b.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>'; return b; }
+function show(b, text) { b.innerHTML = rich(text); scrollDown(); }
+function removeBubble(b) { b.closest(".row").remove(); }
+
+function addQuestion(n, total, q) {
+  const b = add("tutor", "");
+  b.closest(".bub").classList.add("qcard");
+  b.innerHTML = '<div class="qbadge">Question ' + n + " of " + total + "</div>" + rich(q);
+  scrollDown();
+}
+function showEval(out, d, ok, reveal) {
+  const kind = ok ? "good" : d.verdict === "almost" ? "almost" : "bad";
+  out.closest(".bub").classList.add(kind);
+  const title = ok ? "✅ Correct!" : d.verdict === "almost" ? "🟡 Almost there" : "❌ Not quite";
+  let h = '<div class="vtitle">' + title + "</div>" + rich(d.explanation || "");
+  if (!ok) {
+    if (reveal) h += rich("Correct answer: " + (d.correct_answer || ""));
+    else h += rich("Hint: " + (d.hint || (current && current.hint) || "")) + '<p class="retry">Give it another try! 💪</p>';
+  }
+  if (d.encouragement) h += '<p class="enc">' + inline(d.encouragement) + "</p>";
+  out.innerHTML = h; scrollDown();
+}
+
+function confetti() {
+  const wrap = document.createElement("div"); wrap.className = "confetti";
+  const em = ["🎉", "✨", "⭐", "🎊"];
+  for (let i = 0; i < 16; i++) {
+    const s = document.createElement("span"); s.textContent = em[i % 4];
+    s.style.left = Math.random() * 100 + "%"; s.style.animationDelay = Math.random() * 0.5 + "s";
+    s.style.fontSize = 16 + Math.random() * 16 + "px"; wrap.append(s);
+  }
+  document.body.append(wrap); setTimeout(() => wrap.remove(), 2400);
+}
+function setProg(n, total) {
+  $("progw").hidden = !total; $("progbar").style.width = total ? (100 * n / total) + "%" : "0";
+}
+
 function chips(list) {
   $("chips").innerHTML = "";
   list.forEach(([label, fn]) => {
@@ -122,13 +397,25 @@ function fillChapters(sel) {
   }
 }
 
-/* ---------- start / reset a mode ---------- */
+/* ================= mode tabs ================= */
+function buildTabs() {
+  Object.entries(MODE_ICONS).forEach(([k, label]) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "tab"; b.dataset.k = k; b.textContent = label;
+    b.onclick = () => { $("mode").value = k; $("mode").onchange(); };
+    $("tabs").append(b);
+  });
+}
+function syncTabs() { [...$("tabs").children].forEach(b => b.classList.toggle("on", b.dataset.k === mode)); }
+
+/* ================= start / reset a mode ================= */
 function setup() {
   hist = []; queue = []; current = null; attempt = 0; asked = [];
   level = profile.difficulty; qNum = qTotal = batchRight = batchTotal = quizRight = 0;
-  $("chat").innerHTML = ""; $("chips").innerHTML = "";
-  $("lvl").textContent = "· " + profile.difficulty;
-  const hi = "Hi " + profile.name + "! ";
+  $("chat").innerHTML = ""; $("chips").innerHTML = ""; setProg(0, 0);
+  $("lvl").textContent = "🎯 " + profile.difficulty;
+  $("hello").textContent = "Hi " + profile.name + "! Let's learn some maths.";
+  $("chmode").textContent = MODE_ICONS[mode]; $("chch").textContent = "· " + chapter;
+  syncTabs();
   const intro = {
     learn: "Learn mode: I'll explain this chapter step by step. Press the button to begin, or ask me anything about it.",
     doubt: "Ask a Doubt mode: tell me what you're stuck on, or type the problem.",
@@ -136,43 +423,43 @@ function setup() {
     quiz: "Quiz mode: 5 questions, no hints, and a score at the end.",
     challenge: "Challenge mode: one tough problem. Think carefully!",
   };
-  add("tutor", hi + intro[mode]);
-  if (mode === "learn") chips([["Explain this chapter", () => chatSend('Please explain the chapter "' + chapter + '" to me from the start.')]]);
-  if (mode === "practice") chips([["Start practice", startQuestions]]);
-  if (mode === "quiz") chips([["Start the quiz", startQuestions]]);
-  if (mode === "challenge") chips([["Give me a challenge", startQuestions]]);
+  add("tutor", "Hi " + profile.name + "! " + intro[mode]);
+  $("explainBtn").onclick = () => chatSend('Please explain the chapter "' + chapter + '" to me from the start.');
+  if (mode === "practice") chips([["✏️ Start practice", startQuestions]]);
+  if (mode === "quiz") chips([["📝 Start the quiz", startQuestions]]);
+  if (mode === "challenge") chips([["🏆 Give me a challenge", startQuestions]]);
   $("box").placeholder = mode === "learn" || mode === "doubt" ? "Ask a question or reply to the tutor…" : "Type your answer here…";
 }
 
-/* ---------- chat modes (Learn, Ask a Doubt) ---------- */
+/* ================= chat modes (Learn, Ask a Doubt) ================= */
 async function chatSend(text) {
   if (busy) return;
   setBusy(true); $("chips").innerHTML = ""; add("user", text); $("box").value = "";
   hist.push({role: "user", content: text});
-  const out = add("tutor", "Thinking…");
+  const out = think();
   try {
     const d = await api("/api/chat", {messages: hist, mode, chapter, profile});
-    out.textContent = d.reply; hist.push({role: "assistant", content: d.reply});
+    show(out, d.reply); hist.push({role: "assistant", content: d.reply});
   } catch (e) {
-    hist.pop(); out.textContent = "Sorry, I couldn't answer that. Please try again.";
+    hist.pop(); show(out, "Sorry, I couldn't answer that. Please try again.");
   }
   setBusy(false);
 }
 
-/* ---------- question modes (Practice, Quiz, Challenge): Steps 6 and 7 ---------- */
+/* ================= question modes (Practice, Quiz, Challenge) ================= */
 async function startQuestions() {
   if (busy) return;
   setBusy(true); $("chips").innerHTML = "";
   const count = mode === "quiz" ? 5 : mode === "challenge" ? 1 : 3;
   const lv = mode === "challenge" ? "Advanced" : level;
-  const out = add("tutor", "Preparing your questions…");
+  const out = think();
   try {
     const d = await api("/api/questions", {chapter, difficulty: lv, count, mode, avoid: asked.slice(-10)});
     queue = d.questions; qTotal = queue.length; qNum = 0; batchRight = 0; batchTotal = 0;
     if (mode === "quiz") quizRight = 0;
-    out.parentElement.remove(); showNext();
+    removeBubble(out); setProg(0, qTotal); showNext();
   } catch (e) {
-    out.textContent = "Sorry, I couldn't make questions just now."; chips([["Try again", startQuestions]]);
+    show(out, "Sorry, I couldn't make questions just now."); chips([["🔄 Try again", startQuestions]]);
   }
   setBusy(false);
 }
@@ -181,52 +468,52 @@ function showNext() {
   $("chips").innerHTML = "";
   if (!queue.length) return finishBatch();
   current = queue.shift(); attempt = 0; qNum++; asked.push(current.question);
-  add("tutor", "Question " + qNum + " of " + qTotal + "\n" + current.question);
-  if (mode !== "quiz") chips([["Hint", () => add("tutor", "Hint: " + current.hint)]]);
+  setProg(qNum - 1, qTotal);
+  addQuestion(qNum, qTotal, current.question);
+  if (mode !== "quiz") chips([["💡 Hint", () => add("tutor", "Hint: " + current.hint)]]);
   $("box").focus();
 }
 
 function finishBatch() {
-  current = null;
+  current = null; setProg(qTotal, qTotal);
   if (mode === "quiz") {
-    add("tutor", "Quiz finished! You scored " + quizRight + " out of " + qTotal + ". Press 'End session' for your full summary, or take another quiz.");
-    chips([["Take another quiz", startQuestions]]);
+    add("tutor", "Quiz finished! 🎉 You scored **" + quizRight + " out of " + qTotal + "**. Press 'End session' for your full summary, or take another quiz.");
+    chips([["📝 Take another quiz", startQuestions]]); confetti();
   } else if (mode === "challenge") {
     add("tutor", "Nice effort! Ready for another one?");
-    chips([["Another challenge", startQuestions]]);
+    chips([["🏆 Another challenge", startQuestions]]);
   } else {
     let i = LEVELS.indexOf(level), note = "";
-    if (batchTotal && batchRight === batchTotal && i < 2) { level = LEVELS[i + 1]; note = "You got them all right, so I'm moving you up to " + level + "."; }
-    else if (batchTotal && batchRight <= batchTotal / 3 && i > 0) { level = LEVELS[i - 1]; note = "Let's go a little easier, at " + level + " level, to build confidence."; }
+    if (batchTotal && batchRight === batchTotal && i < 2) { level = LEVELS[i + 1]; note = "You got them all right, so I'm moving you up to **" + level + "**. 🚀"; }
+    else if (batchTotal && batchRight <= batchTotal / 3 && i > 0) { level = LEVELS[i - 1]; note = "Let's go a little easier, at **" + level + "** level, to build confidence."; }
     add("tutor", "That's a set done. " + note);
-    chips([["More questions", startQuestions]]);
+    chips([["✏️ More questions", startQuestions]]);
   }
 }
 
 async function evaluate(text) {
   setBusy(true); add("user", text); $("box").value = ""; $("chips").innerHTML = "";
-  const out = add("tutor", "Checking your answer…");
+  const out = think();
   const reveal = mode === "quiz" || attempt >= 1;
   try {
     const d = await api("/api/evaluate", {chapter, question: current.question, answer: current.answer, student: text, reveal, profile});
     const ok = d.verdict === "correct";
-    if (attempt === 0) {                              // Step 8: only the first try is scored
+    if (attempt === 0) {
       record(ok);
       batchTotal++; if (ok) { batchRight++; if (mode === "quiz") quizRight++; }
     }
-    let msg = (ok ? "Correct! " : d.verdict === "almost" ? "Almost correct. " : "Not quite. ") + d.explanation;
-    if (!ok) msg += reveal ? "\nCorrect answer: " + d.correct_answer : "\nHint: " + d.hint + "\nTry again!";
-    msg += "\n" + d.encouragement;
-    out.textContent = msg;
-    if (!ok && !reveal) { attempt++; chips([["Hint", () => add("tutor", "Hint: " + current.hint)]]); }
-    else chips([["Next question", showNext]]);
+    showEval(out, d, ok, reveal);
+    if (ok) confetti();
+    setProg(qNum, qTotal);
+    if (!ok && !reveal) { attempt++; chips([["💡 Hint", () => add("tutor", "Hint: " + current.hint)]]); }
+    else chips([["➡️ Next question", showNext]]);
   } catch (e) {
-    out.textContent = "Sorry, I couldn't check that. Please send your answer again.";
+    show(out, "Sorry, I couldn't check that. Please send your answer again.");
   }
   setBusy(false);
 }
 
-/* ---------- Step 8: strengths and weaknesses ---------- */
+/* ================= strengths and weaknesses ================= */
 function record(ok) {
   const s = stats[chapter] || (stats[chapter] = {attempted: 0, correct: 0});
   s.attempted++; if (ok) s.correct++;
@@ -239,9 +526,10 @@ function record(ok) {
   $("total").textContent = c + " correct out of " + a;
   $("strong").textContent = strong.join("; ") || "-";
   $("need").textContent = need.join("; ") || "-";
+  $("strong").title = $("strong").textContent; $("need").title = $("need").textContent;
 }
 
-/* ---------- sending ---------- */
+/* ================= sending ================= */
 function submit() {
   const text = $("box").value.trim();
   if (!text || busy) return;
@@ -252,18 +540,18 @@ function submit() {
 $("f").onsubmit = e => { e.preventDefault(); submit(); };
 $("box").onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } };
 
-/* ---------- Step 9: end of session ---------- */
+/* ================= end of session ================= */
 $("end").onclick = async () => {
   if (busy) return;
   if (!Object.keys(stats).length) { add("tutor", "Answer a few questions first, then I can summarise your session."); return; }
   setBusy(true);
-  const out = add("tutor", "Preparing your summary…");
-  try { out.textContent = (await api("/api/summary", {profile, stats, weak})).summary; }
-  catch (e) { out.textContent = "Sorry, I couldn't make the summary just now."; }
+  const out = think();
+  try { show(out, (await api("/api/summary", {profile, stats, weak})).summary); confetti(); }
+  catch (e) { show(out, "Sorry, I couldn't make the summary just now."); }
   setBusy(false);
 };
 
-/* ---------- wiring ---------- */
+/* ================= wiring ================= */
 $("mode").onchange = () => { if (busy) { $("mode").value = mode; return; } mode = $("mode").value; setup(); };
 $("chapter").onchange = () => { if (busy) { $("chapter").value = chapter; return; } chapter = $("chapter").value; setup(); };
 $("edit").onclick = () => { if (!busy) { $("app").hidden = true; $("onb").hidden = false; } };
@@ -274,6 +562,12 @@ $("onbForm").onsubmit = e => {
   $("onb").hidden = true; $("app").hidden = false; setup();
 };
 
+$("big").onclick = () => {
+  const on = $("app").classList.toggle("big");
+  $("big").textContent = on ? "⤡ Normal size" : "⤢ Bigger chat";
+  scrollDown();
+};
+buildTabs();
 fetch("/api/config").then(r => r.json()).then(d => { CH = d.chapters; fillChapters($("oChapter")); fillChapters($("chapter")); });
 </script>
 </body>
