@@ -295,6 +295,7 @@
 <script>
 const $ = id => document.getElementById(id);
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
+const MAX_TRIES = 3;   // total attempts per question in Practice and Challenge (Quiz is always 1)
 const MODE_ICONS = {learn: "📖 Learn", doubt: "🙋 Ask a Doubt", practice: "✏️ Practice", quiz: "📝 Quiz", challenge: "🏆 Challenge"};
 
 let CH = {};
@@ -381,7 +382,7 @@ function showEval(out, d, ok, reveal) {
   let h = '<div class="vtitle">' + title + "</div>" + rich(d.explanation || "");
   if (!ok) {
     if (reveal) h += rich("Correct answer: " + (d.correct_answer || ""));
-    else h += rich("Hint: " + (d.hint || (current && current.hint) || "")) + '<p class="retry">Give it another try! 💪</p>';
+    else h += rich("Hint: " + (d.hint || (current && current.hint) || "")) + '<p class="retry">Give it another try! 💪 (' + (MAX_TRIES - 1 - attempt) + ' left)</p>';
   }
   if (d.encouragement) h += '<p class="enc">' + inline(d.encouragement) + "</p>";
   out.innerHTML = h; scrollDown();
@@ -436,6 +437,7 @@ function setup() {
   $("hello").textContent = "Hi " + profile.name + "! Let's learn some maths.";
   $("chmode").textContent = MODE_ICONS[mode]; $("chch").textContent = "· " + chapter;
   $("explainBtn").hidden = mode !== "learn";
+document.querySelectorAll(".stat").forEach(c => c.hidden = !["practice", "quiz", "challenge"].includes(mode));
   syncTabs();
   const intro = {
     learn: "Learn mode: I'll explain this chapter step by step. Press the button at the top, or ask me anything about it.",
@@ -514,7 +516,7 @@ function finishBatch() {
 async function evaluate(text) {
   setBusy(true); add("user", text); $("box").value = ""; $("chips").innerHTML = "";
   const out = think();
-  const reveal = mode === "quiz" || attempt >= 1;
+  const reveal = mode === "quiz" || attempt >= MAX_TRIES - 1;
   try {
     const d = await api("/api/evaluate", {chapter, question: current.question, answer: current.answer, student: text, reveal, profile});
     const ok = d.verdict === "correct";
