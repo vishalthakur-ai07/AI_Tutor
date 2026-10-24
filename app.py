@@ -12,7 +12,7 @@ client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
     api_key=os.environ.get("NVIDIA_API_KEY", "missing-key"),
 )
-MODEL = os.environ.get("NVIDIA_MODEL", "meta/llama-3.1-70b-instruct")
+MODEL = os.environ.get("NVIDIA_MODEL", "nvidia/nemotron-3-ultra-550b-a55b")
 
 # ---------- STEP 1: the syllabus (CBSE Class 8, NCERT Ganita Prakash) ----------
 CHAPTERS = {
@@ -169,25 +169,36 @@ def questions():
     styles = {
         "Beginner": "easy, one or two steps, small whole numbers",
         "Intermediate": "moderate, two or three steps, may include simple word problems",
-        "Advanced": "challenging, multi-step, may include tricky word problems",
+        "Advanced": "challenging, needing three or four steps, may be a word problem; stated in at most three short sentences",
     }
-    schema = '[{"question": "...", "answer": "...", "hint": "...", "concept": "short skill name"}]'
+    schema = ('[{"question": "A rectangle has length 12 m and width 5 m. What is its area?", '
+              '"answer": "60 square metres", "hint": "Multiply the length by the width.", '
+              '"concept": "area of a rectangle"}]')
     prompt = (
         f"Create {count} NEW questions for CBSE Class 8 maths, NCERT Ganita Prakash chapter: {chapter}.\n"
         f"Difficulty: {level} ({styles.get(level, styles['Beginner'])}).\n"
         "Rules: each question must be answerable in text with ONE short final answer (a number, expression or short phrase). "
         "Put all numbers and measurements inside the question. Never ask the student to draw. Double-check every answer. "
+        "Write maths in plain text only (3/4, x^2, 2x + 5 = 11). Do NOT use LaTeX, backslashes or dollar signs. "
         "The hint must help without giving the answer away. 'concept' is the specific skill tested.\n"
         f"Do not repeat or closely copy these earlier questions: {json.dumps(avoid)}\n"
-        f"Reply with ONLY JSON in exactly this shape: {schema}"
+        "Reply with ONLY a JSON list. The example below shows the SHAPE only; your questions must be different and about the chapter above:\n"
+        f"{schema}"
     )
     try:
-        qs = call_json("You write accurate maths questions. Reply with JSON only.", prompt, 1500)
-        qs = [q for q in qs if all(k in q for k in ("question", "answer", "hint", "concept"))]
-        if not qs:
+        qs = call_json("You write accurate maths questions. Reply with JSON only.", prompt, 3000)
+        if isinstance(qs, dict):
+            qs = [qs]
+        good = [
+            q for q in qs
+            if isinstance(q, dict) and all(k in q for k in ("question", "answer", "hint", "concept"))
+            and len(str(q["question"]).strip()) > 15 and str(q["answer"]).strip() not in ("", "...")
+        ]
+        if not good:
             raise ValueError("No valid questions came back")
-        return jsonify({"questions": qs})
+        return jsonify({"questions": good})
     except Exception as e:
+        print("Question generation failed:", e, flush=True)
         return jsonify({"error": str(e)}), 500
 
 
